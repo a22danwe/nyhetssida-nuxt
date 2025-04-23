@@ -69,6 +69,21 @@ if (json.value?.data) {
     description: `Under ${row[17]} was ${row[21]} deaths per 100 000 reported among ${row[15]?.toLowerCase()}.`
   }))
 }
+
+//Funktioner
+const selectArticle = (item) => selectedArticle.value = item
+
+const panels = computed(() => ['Alla', ...new Set(articles.value.map(a => a.panel))])
+const filteredArticles = computed(() =>
+  selectedPanel.value === 'Alla' ? articles.value : articles.value.filter(a => a.panel === selectedPanel.value)
+)
+const totalPages = computed(() => Math.ceil(filteredArticles.value.length / articlesPerPage))
+const paginatedArticles = computed(() => {
+  const start = (currentPage.value - 1) * articlesPerPage
+  return filteredArticles.value.slice(start, start + articlesPerPage)
+})
+const nextPage = () => currentPage.value < totalPages.value && currentPage.value++
+const prevPage = () => currentPage.value > 1 && currentPage.value--
 <script scoped>
 
 </script>
