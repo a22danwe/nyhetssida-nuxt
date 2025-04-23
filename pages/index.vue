@@ -41,11 +41,16 @@
     <div class="sidebar left"></div>
     <div class="sidebar right"></div>
   </div>
-
 </template>
 
 <script setup>
+import {ref, computedn onMountedn nextTick } from 'vue'
 
+const selectedPanel = ref('Alla')
+const selectedArticle = ref(null)
+const articles = ref([])
+const currentPage = ref(1)
+const articlesPerPage = 10
 </script>
 
 <script scoped>
