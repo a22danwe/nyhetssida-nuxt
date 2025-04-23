@@ -99,6 +99,16 @@ const exportCSV = () => {
   localStorage.removeItem('reloadCount')
 }
 
+// Mätlogik
+const getReloadCount = () => Number(localStorage.getItem('reloadCount') || '0')
+const incrementReloadCount = () => localStorage.setItem('reloadCount', getReloadCount() + 1)
+const clearReloadCount = () => localStorage.removeItem('reloadCount')
+
+const saveRenderTime = (label, time) => {
+  const existing = JSON.parse(localStorage.getItem('renderTimes') || '[]')
+  existing.push({ label, time })
+  localStorage.setItem('renderTimes', JSON.stringify(existing))
+}
 </script>
 
 <style scoped>
