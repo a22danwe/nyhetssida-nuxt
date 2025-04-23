@@ -52,6 +52,9 @@ const articles = ref([])
 const currentPage = ref(1)
 const articlesPerPage = 10
 
+// start av mätning
+const renderStart = ref(0)
+
 // Datahämtning
 const { data: json } = await useAsyncData ('dataset', () => $fetch('/api/dataset'))
 
@@ -109,6 +112,27 @@ const saveRenderTime = (label, time) => {
   existing.push({ label, time })
   localStorage.setItem('renderTimes', JSON.stringify(existing))
 }
+
+onMounted(async () => {
+  renderStart.value = performance.now()
+
+  await nextTick() // vänta på DOM
+  setTimeout(() => {
+    const end = performance.now()
+    const time = end - renderStart.value
+
+    const label = `Reload ${getReloadCount()}`
+    saveRenderTime(label, time)
+
+    if (getReloadCount() < 50) {
+      incrementReloadCount()
+      setTimeout(() => location.reload(), 500)
+    } else {
+      exportCSV()
+      clearReloadCount()
+    }
+  }, 100) // litet andrum
+})
 </script>
 
 <style scoped>
