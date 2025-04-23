@@ -52,7 +52,8 @@ const articles = ref([])
 const currentPage = ref(1)
 const articlesPerPage = 10
 </script>
-
+// Datahämtning
+const { data: json } = await useAsyncData ('dataset', () => $fetch('/api/dataset'))
 <script scoped>
 
 </script>
