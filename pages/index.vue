@@ -54,6 +54,21 @@ const articlesPerPage = 10
 </script>
 // Datahämtning
 const { data: json } = await useAsyncData ('dataset', () => $fetch('/api/dataset'))
+
+// initiera artiklar
+if (json.value?.data) {
+    articles.value = json.value.data.map((row, index) => ({
+        id: index,
+        year: row[17],
+        ageGroup: row[15],
+        gender: row[16],
+        panel: row[9],
+    estimate: row[21],
+    state: row[5],
+    race: row[14],
+    description: `Under ${row[17]} was ${row[21]} deaths per 100 000 reported among ${row[15]?.toLowerCase()}.`
+  }))
+}
 <script scoped>
 
 </script>
