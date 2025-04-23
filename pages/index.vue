@@ -51,7 +51,7 @@ const selectedArticle = ref(null)
 const articles = ref([])
 const currentPage = ref(1)
 const articlesPerPage = 10
-</script>
+
 // Datahämtning
 const { data: json } = await useAsyncData ('dataset', () => $fetch('/api/dataset'))
 
@@ -84,6 +84,23 @@ const paginatedArticles = computed(() => {
 })
 const nextPage = () => currentPage.value < totalPages.value && currentPage.value++
 const prevPage = () => currentPage.value > 1 && currentPage.value--
-<script scoped>
+
+// nedladdning av csv
+const exportCSV = () => {
+  const data = JSON.parse(localStorage.getItem('renderTimes') || '[]')
+  const header = 'Index,Label,Time(ms)\n'
+  const rows = data.map((item, i) => `${i + 1},${item.label},${item.time.toFixed(2)}`)
+  const blob = new Blob([header + rows.join('\n')], { type: 'text/csv' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = 'render-times.csv'
+  link.click()
+  localStorage.removeItem('renderTimes')
+  localStorage.removeItem('reloadCount')
+}
 
 </script>
+
+<style scoped>
+
+</style>
