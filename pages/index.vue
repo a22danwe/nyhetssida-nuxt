@@ -113,6 +113,7 @@ const saveRenderTime = (label, time) => {
   localStorage.setItem('renderTimes', JSON.stringify(existing))
 }
 
+// kör mätning
 onMounted(async () => {
   renderStart.value = performance.now()
 
@@ -136,5 +137,141 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+body {
+            font-family: sans-serif;
+            margin: 0;
+            background: #f4f4f4;
+        }
 
+        header {
+            background: black;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 30%;
+            height: 60%;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.2);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            width: 100px;
+            height: 100%;
+            background: black;
+            display: flex;
+            color: white;
+            justify-content: center;
+            text-align: center;
+            align-items: center;
+        }
+
+        .sidebar.left {
+            left: 0;
+        }
+
+        .sidebar.right {
+            right: 0;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: fit-content;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        select {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            margin: 1rem auto;
+            display: block;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        select:hover {
+            border-color: #666;
+        }
+
+
+        #app {
+            background-color: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .exportCSV {
+            text-align: center;
+            margin-top: 1rem;
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+        }
 </style>
