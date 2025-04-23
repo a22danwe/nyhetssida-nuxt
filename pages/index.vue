@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import {ref, computed, onMountedn nextTick } from 'vue'
+import {ref, computed, onMounted, nextTick } from 'vue'
 
 const selectedPanel = ref('Alla')
 const selectedArticle = ref(null)
