@@ -152,7 +152,7 @@ async function measureRender(label = 'Render') {
 async function startPagingTest() {
   let direction = 1
   let steps = 0
-  const maxSteps = 50
+  const maxSteps = 200
 
   while (steps < maxSteps) {
     if (direction === 1 && currentPage.value < totalPages.value) {
