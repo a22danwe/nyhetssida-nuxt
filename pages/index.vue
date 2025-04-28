@@ -125,7 +125,7 @@ onMounted(async () => {
     const label = `Reload ${getReloadCount()}`
     saveRenderTime(label, time)
 
-    if (getReloadCount() < 50) {
+    if (getReloadCount() < 200) {
       incrementReloadCount()
       setTimeout(() => location.reload(), 500)
     } else {
