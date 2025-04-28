@@ -1,5 +1,5 @@
 <template>
-    <div>
+  <div>
     <header>
       <h1>Nyheter: Drug Overdose Deaths In The US</h1>
     </header>
@@ -22,7 +22,8 @@
       </div>
 
       <div class="exportCSV">
-        <button @click="exportCSV">Exportera som CSV</button>
+        <button @click="exportCSV">Exportera CSV</button>
+        <button @click="startPagingTest" style="margin-left: 10px;">Starta Paging Test</button>
       </div>
     </div>
 
@@ -44,28 +45,25 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 
 const selectedPanel = ref('Alla')
 const selectedArticle = ref(null)
 const articles = ref([])
 const currentPage = ref(1)
 const articlesPerPage = 10
-
-// start av mätning
 const renderStart = ref(0)
 
 // Datahämtning
-const { data: json } = await useAsyncData ('dataset', () => $fetch('/api/dataset'))
+const { data: json } = await useAsyncData('dataset', () => $fetch('/api/dataset'))
 
-// initiera artiklar
 if (json.value?.data) {
-    articles.value = json.value.data.map((row, index) => ({
-        id: index,
-        year: row[17],
-        ageGroup: row[15],
-        gender: row[16],
-        panel: row[9],
+  articles.value = json.value.data.map((row, index) => ({
+    id: index,
+    year: row[17],
+    ageGroup: row[15],
+    gender: row[16],
+    panel: row[9],
     estimate: row[21],
     state: row[5],
     race: row[14],
@@ -73,7 +71,7 @@ if (json.value?.data) {
   }))
 }
 
-//Funktioner
+// Funktioner
 const selectArticle = (item) => selectedArticle.value = item
 
 const panels = computed(() => ['Alla', ...new Set(articles.value.map(a => a.panel))])
@@ -88,7 +86,7 @@ const paginatedArticles = computed(() => {
 const nextPage = () => currentPage.value < totalPages.value && currentPage.value++
 const prevPage = () => currentPage.value > 1 && currentPage.value--
 
-// nedladdning av csv
+// Nedladdning av CSV
 const exportCSV = () => {
   const data = JSON.parse(localStorage.getItem('renderTimes') || '[]')
   const header = 'Index,Label,Time(ms)\n'
@@ -113,28 +111,69 @@ const saveRenderTime = (label, time) => {
   localStorage.setItem('renderTimes', JSON.stringify(existing))
 }
 
-// kör mätning
+// Mätning vid sidladdning
 onMounted(async () => {
   renderStart.value = performance.now()
-
-  await nextTick() // vänta på DOM
+  await nextTick()
   setTimeout(() => {
-    const end = performance.now()
-    const time = end - renderStart.value
+    requestAnimationFrame(() => {
+      const end = performance.now()
+      const time = end - renderStart.value
 
-    const label = `Reload ${getReloadCount()}`
-    saveRenderTime(label, time)
+      const label = `Reload ${getReloadCount()}`
+      saveRenderTime(label, time)
 
-    if (getReloadCount() < 200) {
-      incrementReloadCount()
-      setTimeout(() => location.reload(), 500)
-    } else {
-      exportCSV()
-      clearReloadCount()
-    }
-  }, 100) // litet andrum
+      if (getReloadCount() < 200) {
+        incrementReloadCount()
+        setTimeout(() => location.reload(), 500)
+      } else {
+        exportCSV()
+        clearReloadCount()
+      }
+    })
+  }, 100)
 })
+
+// Nytt: Mätning vid automatiska sidbyten
+async function measureRender(label = 'Render') {
+  renderStart.value = performance.now()
+  await nextTick()
+  await new Promise(resolve => requestAnimationFrame(resolve))
+  const renderEnd = performance.now()
+  const time = renderEnd - renderStart.value
+
+  const existing = JSON.parse(localStorage.getItem('renderTimes') || '[]')
+  existing.push({ label, time })
+  localStorage.setItem('renderTimes', JSON.stringify(existing))
+
+  console.log(`${label}: ${time.toFixed(2)} ms`)
+}
+
+async function startPagingTest() {
+  let direction = 1
+  let steps = 0
+  const maxSteps = 50
+
+  while (steps < maxSteps) {
+    if (direction === 1 && currentPage.value < totalPages.value) {
+      currentPage.value++
+    } else if (direction === -1 && currentPage.value > 1) {
+      currentPage.value--
+    }
+
+    await measureRender(`Page change ${steps + 1}`)
+    steps++
+
+    if (currentPage.value === totalPages.value) direction = -1
+    if (currentPage.value === 1) direction = 1
+
+    await new Promise(resolve => setTimeout(resolve, 300))
+  }
+
+  exportCSV()
+}
 </script>
+
 
 <style scoped>
 body {
