@@ -24,6 +24,7 @@
       <div class="exportCSV">
         <button @click="exportCSV">Exportera CSV</button>
         <button @click="startPagingTest" style="margin-left: 10px;">Starta Paging Test</button>
+        <button @click="startInitialRenderTest" style="margin-left: 10px;">Starta Initial Rendering</button>
       </div>
     </div>
 
@@ -115,24 +116,36 @@ const saveRenderTime = (label, time) => {
 onMounted(async () => {
   renderStart.value = performance.now()
   await nextTick()
+
+  const isRunning = localStorage.getItem('initialTestRunning') === 'true'
+  if (!isRunning) return
+
   setTimeout(() => {
     requestAnimationFrame(() => {
       const end = performance.now()
       const time = end - renderStart.value
-
       const label = `Reload ${getReloadCount()}`
+
       saveRenderTime(label, time)
 
-      if (getReloadCount() < 200) {
+      if (getReloadCount() < 10000) {
         incrementReloadCount()
-        setTimeout(() => location.reload(), 500)
+        setTimeout(() => location.reload(), 300)
       } else {
         exportCSV()
         clearReloadCount()
+        localStorage.removeItem('initialTestRunning')
       }
     })
   }, 100)
 })
+
+const startInitialRenderTest = () => {
+  localStorage.setItem('initialTestRunning', 'true')
+  localStorage.setItem('reloadCount', '0')
+  location.reload()
+}
+
 
 // Nytt: Mätning vid automatiska sidbyten
 async function measureRender(label = 'Render') {
@@ -150,28 +163,26 @@ async function measureRender(label = 'Render') {
 }
 
 async function startPagingTest() {
-  let direction = 1
   let steps = 0
-  const maxSteps = 200
+  const maxSteps = 10000
 
   while (steps < maxSteps) {
-    if (direction === 1 && currentPage.value < totalPages.value) {
-      currentPage.value++
-    } else if (direction === -1 && currentPage.value > 1) {
-      currentPage.value--
+    currentPage.value++
+
+    if (currentPage.value > totalPages.value) {
+      currentPage.value = 1 // återgå till början om vi når slutet
     }
 
     await measureRender(`Page change ${steps + 1}`)
     steps++
-
-    if (currentPage.value === totalPages.value) direction = -1
-    if (currentPage.value === 1) direction = 1
 
     await new Promise(resolve => setTimeout(resolve, 300))
   }
 
   exportCSV()
 }
+
+
 </script>
 
 
